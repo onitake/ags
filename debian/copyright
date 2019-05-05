@@ -27,6 +27,7 @@ License: Artistic-2.0 or BSD-3-clause
 
 Files: debian/*
 Copyright: 2012 Tobias Hansen <tobias.han@gmx.de>
+ 2017 Gregor Riepl <onitake@gmail.com>
 License: BSD-3-clause
 
 Files: Common/libsrc/aastr-0.1.1/*

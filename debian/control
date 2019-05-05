@@ -1,7 +1,7 @@
 Source: ags
 Section: games
 Priority: optional
-Maintainer: Tobias Hansen <tobias.han@gmx.de>
+Maintainer: Gregor Riepl <onitake@gmail.com>
 Build-Depends: debhelper (>= 11),
                pkg-config,
                liballegro4-dev,
