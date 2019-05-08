@@ -72,6 +72,14 @@ int Mouse_GetVisible() {
     return 1;
 }
 
+void Mouse_SetControlEnabled(bool enabled) {
+    if (enabled)
+        // TODO this should incorporate current fullscreen status
+        Mouse::EnableControl(false);
+    else
+        Mouse::DisableControl();
+}
+
 void SetMouseBounds(int x1, int y1, int x2, int y2)
 {
     int xmax = game_to_data_coord(play.GetMainViewport().GetWidth()) - 1;
@@ -556,6 +564,11 @@ RuntimeScriptValue Sc_Mouse_Click(const RuntimeScriptValue *params, int32_t para
     API_SCALL_VOID_PINT(PluginSimulateMouseClick);
 }
 
+RuntimeScriptValue Sc_Mouse_SetControlEnabled(const RuntimeScriptValue *params, int32_t param_count)
+{
+    API_SCALL_VOID_PBOOL(Mouse_SetControlEnabled);
+}
+
 RuntimeScriptValue Sc_Mouse_GetControlEnabled(const RuntimeScriptValue *params, int32_t param_count)
 {
     API_SCALL_BOOL(Mouse::IsControlEnabled);
@@ -593,6 +606,7 @@ void RegisterMouseAPI()
     ccAddExternalStaticFunction("Mouse::UseDefaultGraphic^0",       Sc_set_default_cursor);
     ccAddExternalStaticFunction("Mouse::UseModeGraphic^1",          Sc_set_mouse_cursor);
     ccAddExternalStaticFunction("Mouse::get_ControlEnabled",        Sc_Mouse_GetControlEnabled);
+    ccAddExternalStaticFunction("Mouse::set_ControlEnabled",        Sc_Mouse_SetControlEnabled);
     ccAddExternalStaticFunction("Mouse::get_Mode",                  Sc_GetCursorMode);
     ccAddExternalStaticFunction("Mouse::set_Mode",                  Sc_set_cursor_mode);
     ccAddExternalStaticFunction("Mouse::get_Speed",                 Sc_Mouse_GetSpeed);
