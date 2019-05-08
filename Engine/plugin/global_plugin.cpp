@@ -158,6 +158,9 @@ bool RegisterPluginStubs(const char* name)
     ccAddExternalStaticFunction("IosGetAchievementValue",       Sc_PluginStub_IntNeg1);
     ccAddExternalStaticFunction("IosShowAchievements",          Sc_PluginStub_Void);
     ccAddExternalStaticFunction("IosResetAchievements",         Sc_PluginStub_Void);
+    ccAddExternalStaticFunction("MobileShowAchievements",       Sc_PluginStub_Void);
+    ccAddExternalStaticFunction("MobileResetAchievements",      Sc_PluginStub_Void);
+    ccAddExternalStaticFunction("MobileGetAchievement",         Sc_PluginStub_Void);
     return true;
   }
 
