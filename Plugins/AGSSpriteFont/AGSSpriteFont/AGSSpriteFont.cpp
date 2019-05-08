@@ -119,6 +119,12 @@ void SetSpacing(int fontNum, int spacing)
 	engine->PrintDebugConsole("AGSSpriteFont: SetSpacing");
 	vWidthRenderer->SetSpacing(fontNum, spacing);
 }
+
+void SetLineHeightAdjust(int fontNum, int arg1, int arg2, int arg3)
+{
+	engine->PrintDebugConsole("AGSSpriteFont: SetLineHeightAdjust");
+	vWidthRenderer->SetLineHeightAdjust(fontNum, arg1, arg2, arg3);
+}
 //==============================================================================
 
 #if AGS_PLATFORM_OS_WINDOWS && !defined(BUILTIN_PLUGINS)
@@ -229,6 +235,7 @@ void AGS_EngineStartup(IAGSEngine *lpEngine)
 	REGISTER(SetVariableSpriteFont)
 	REGISTER(SetGlyph)
 	REGISTER(SetSpacing)
+	REGISTER(SetLineHeightAdjust)
 }
 
 //------------------------------------------------------------------------------

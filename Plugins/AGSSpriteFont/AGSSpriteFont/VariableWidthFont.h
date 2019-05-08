@@ -11,6 +11,7 @@ public:
 	int SpriteNumber;
 	int FontReplaced;
 	int Spacing;
+	int LineHeightAdjust1, LineHeightAdjust2, LineHeightAdjust3;
 	std::map<char, CharacterEntry> characters;
 
 private:

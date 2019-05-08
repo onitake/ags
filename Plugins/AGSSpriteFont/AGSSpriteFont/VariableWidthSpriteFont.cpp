@@ -83,6 +83,14 @@ void VariableWidthSpriteFontRenderer::SetSprite(int fontNum, int spriteNum)
 	font->SpriteNumber = spriteNum;
 }
 
+void VariableWidthSpriteFontRenderer::SetLineHeightAdjust(int fontNum, int arg1, int arg2, int arg3)
+{
+	VariableWidthFont *font = getFontFor(fontNum);
+	font->LineHeightAdjust1 = arg1;
+	font->LineHeightAdjust2 = arg2;
+	font->LineHeightAdjust3 = arg3;
+}
+
 VariableWidthFont *VariableWidthSpriteFontRenderer::getFontFor(int fontNum){
 	VariableWidthFont *font;
 	for (int i = 0; i < _fonts.size(); i ++)
