@@ -63,6 +63,7 @@ void SaveCursorForLocationChange();
 void GetLocationName(int xxx,int yyy,char*tempo);
 
 int IsKeyPressed (int keycode);
+void SimulateKeyPress (int keycode);
 
 int SaveScreenShot(const char*namm);
 void SetMultitasking (int mode);

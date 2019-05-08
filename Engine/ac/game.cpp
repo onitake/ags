@@ -2161,6 +2161,12 @@ RuntimeScriptValue Sc_StopAllSounds(const RuntimeScriptValue *params, int32_t pa
     API_SCALL_VOID_PINT(StopAllSounds);
 }
 
+// void (int keyCode);
+RuntimeScriptValue Sc_SimulateKeyPress(const RuntimeScriptValue *params, int32_t param_count)
+{
+    API_SCALL_VOID_PINT(SimulateKeyPress);
+}
+
 // int ()
 RuntimeScriptValue Sc_Game_GetCharacterCount(const RuntimeScriptValue *params, int32_t param_count)
 {
@@ -2389,6 +2395,7 @@ void RegisterGameAPI()
     ccAddExternalStaticFunction("Game::InputBox^1",                             Sc_Game_InputBox);
     ccAddExternalStaticFunction("Game::SetSaveGameDirectory^1",                 Sc_Game_SetSaveGameDirectory);
     ccAddExternalStaticFunction("Game::StopSound^1",                            Sc_StopAllSounds);
+    ccAddExternalStaticFunction("Game::SimulateKeyPress^1",                     Sc_SimulateKeyPress);
     ccAddExternalStaticFunction("Game::get_CharacterCount",                     Sc_Game_GetCharacterCount);
     ccAddExternalStaticFunction("Game::get_DialogCount",                        Sc_Game_GetDialogCount);
     ccAddExternalStaticFunction("Game::get_FileName",                           Sc_Game_GetFileName);
