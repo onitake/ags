@@ -98,14 +98,21 @@ void SetSpriteFont(int fontNum, int sprite, int rows, int columns, int charWidth
 	engine->PrintDebugConsole("AGSSpriteFont: SetSpriteFont");
 	fontRenderer->SetSpriteFont(fontNum, sprite, rows, columns, charWidth, charHeight, charMin, charMax, use32bit);
 	engine->ReplaceFontRenderer(fontNum, fontRenderer);
-
 }
 
 void SetVariableSpriteFont(int fontNum, int sprite)
 {
-	engine->PrintDebugConsole("AGSSpriteFont: SetVariableFont");
-	vWidthRenderer->SetSprite(fontNum, sprite);
-	engine->ReplaceFontRenderer(fontNum, vWidthRenderer);
+    //in kathy rain, font 13 == fridge and font 16 is postcard.
+    //The postcard overflows if the rest of the plugin is missing
+    //'dynamic line height modification' code. But it's not needed,
+    //just blacklist that font and fallback to default. It's *only*
+    //used on the postcard afaict.
+    if (fontNum == 16 && sprite == 2630) {
+        return;
+    }
+    engine->PrintDebugConsole("AGSSpriteFont: SetVariableFont");
+    vWidthRenderer->SetSprite(fontNum, sprite);
+    engine->ReplaceFontRenderer(fontNum, vWidthRenderer);
 }
 
 void SetGlyph(int fontNum, int charNum, int x, int y, int width, int height)
@@ -137,6 +144,7 @@ const char *ourScriptHeader =
   "import void SetVariableSpriteFont(int fontNum, int sprite);\r\n"
   "import void SetGlyph(int fontNum, int charNum, int x, int y, int width, int height);\r\n"
   "import void SetSpacing(int fontNum, int spacing);\r\n"
+  "import void SetLineHeightAdjust(int fontNum, int LineHeight, int SpacingHeight, int SpacingOverride);\r\n"
   ;
 
 //------------------------------------------------------------------------------
@@ -245,6 +253,8 @@ void AGS_EngineShutdown()
 	// Called by the game engine just before it exits.
 	// This gives you a chance to free any memory and do any cleanup
 	// that you need to do before the engine shuts down.
+	delete fontRenderer;
+	delete vWidthRenderer;
 }
 
 //------------------------------------------------------------------------------
