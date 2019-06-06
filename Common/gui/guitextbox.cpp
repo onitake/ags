@@ -64,11 +64,19 @@ void GUITextBox::KeyPress(int kp)
 {
   guis_need_update = 1;
   // backspace, remove character
-  if ((kp == 8) && (strlen(text) > 0)) {
+#if defined(MAC_VERSION)
+  if ((kp == 127 || kp == 8) && (strlen(text) > 0)) {
     text[strlen(text) - 1] = 0;
     return;
-  } else if (kp == 8)
+  } else if (kp == 127)
     return;
+#else
+  if ((kp == 8) && (strlen(text) > 0)) {
+	  text[strlen(text) - 1] = 0;
+	  return;
+  } else if (kp == 8)
+	  return;
+#endif
 
   // other key, continue
   if ((kp >= 128) && (!fontRenderers[font]->SupportsExtendedCharacters(font)))

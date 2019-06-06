@@ -27,7 +27,11 @@
 #include "debug/debug_log.h"
 #include "gui/guibutton.h"
 #include "gui/guimain.h"
+#if defined(IOS_VERSION) || defined(MAC_VERSION)
+#include "device/mousemac.h"
+#else
 #include "device/mousew32.h"
+#endif
 #include "ac/spritecache.h"
 #include "gfx/graphicsdriver.h"
 
@@ -382,6 +386,17 @@ int find_next_enabled_cursor(int startwith) {
     return testing;
 }
 
+void Mouse_EnableControl(bool on)
+{
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	if (on)
+		Mouse::EnableControl(!usetup.windowed);	
+	else
+		Mouse::DisableControl();
+#endif
+#endif
+}
 
 //=============================================================================
 //
@@ -502,6 +517,43 @@ RuntimeScriptValue Sc_Mouse_SetVisible(const RuntimeScriptValue *params, int32_t
     API_SCALL_VOID_PINT(Mouse_SetVisible);
 }
 
+RuntimeScriptValue Sc_Mouse_GetControlEnabled(const RuntimeScriptValue *params, int32_t param_count)
+{
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	API_SCALL_BOOL(Mouse::IsControlEnabled);
+#endif
+#endif
+}
+
+RuntimeScriptValue Sc_Mouse_SetControlEnabled(const RuntimeScriptValue *params, int32_t param_count)
+{
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	API_SCALL_VOID_PINT(Mouse_EnableControl);
+#endif
+#endif
+}
+
+RuntimeScriptValue Sc_Mouse_GetSpeed(const RuntimeScriptValue *params, int32_t param_count)
+{
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	API_SCALL_FLOAT(Mouse::GetSpeed);
+#endif
+#endif
+}
+
+RuntimeScriptValue Sc_Mouse_SetSpeed(const RuntimeScriptValue *params, int32_t param_count)
+{
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	ASSERT_VARIABLE_VALUE("Mouse::Speed");
+	Mouse::SetSpeed(params[0].FValue);
+	return RuntimeScriptValue();
+#endif
+#endif
+}
 
 void RegisterMouseAPI()
 {
@@ -519,10 +571,16 @@ void RegisterMouseAPI()
     ccAddExternalStaticFunction("Mouse::Update^0",                  Sc_RefreshMouse);
     ccAddExternalStaticFunction("Mouse::UseDefaultGraphic^0",       Sc_set_default_cursor);
     ccAddExternalStaticFunction("Mouse::UseModeGraphic^1",          Sc_set_mouse_cursor);
+	ccAddExternalStaticFunction("Mouse::get_ControlEnabled",        Sc_Mouse_GetControlEnabled);
+	ccAddExternalStaticFunction("Mouse::set_ControlEnabled",        Sc_Mouse_SetControlEnabled);
     ccAddExternalStaticFunction("Mouse::get_Mode",                  Sc_GetCursorMode);
     ccAddExternalStaticFunction("Mouse::set_Mode",                  Sc_set_cursor_mode);
+	ccAddExternalStaticFunction("Mouse::get_Speed",                 Sc_Mouse_GetSpeed);
+	ccAddExternalStaticFunction("Mouse::set_Speed",                 Sc_Mouse_SetSpeed);
     ccAddExternalStaticFunction("Mouse::get_Visible",               Sc_Mouse_GetVisible);
     ccAddExternalStaticFunction("Mouse::set_Visible",               Sc_Mouse_SetVisible);
+
+
 
     /* ----------------------- Registering unsafe exports for plugins -----------------------*/
 

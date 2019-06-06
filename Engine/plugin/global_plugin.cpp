@@ -180,6 +180,31 @@ void wjuIosResetAchievements()
 {
 }
 
+void SetSpriteFont(int fontNum, int sprite, int rows, int columns, int charWidth, int charHeight, int charMin, int charMax, bool use32bit)
+{
+
+}
+
+void SetVariableSpriteFont(int fontNum, int sprite)
+{
+
+}
+
+void SetGlyph(int fontNum, int charNum, int x, int y, int width, int height)
+{
+
+}
+
+void SetSpacing(int fontNum, int spacing)
+{
+
+}
+
+void SetLineHeightAdjust(int fontNum, int LineHeight, int SpacingHeight, int SpacingOverride)
+{
+
+}
+
 //=============================================================================
 //
 // Script API Functions
@@ -466,6 +491,41 @@ RuntimeScriptValue Sc_wjuIosResetAchievements(const RuntimeScriptValue *params, 
     API_SCALL_VOID(wjuIosResetAchievements);
 }
 
+// void ()
+RuntimeScriptValue Sc_SetSpriteFont(const RuntimeScriptValue *params, int32_t param_count)
+{
+	API_SCALL_VOID_PINT2(SetVariableSpriteFont);
+}
+
+// void ()
+RuntimeScriptValue Sc_SetVariableSpriteFont(const RuntimeScriptValue *params, int32_t param_count)
+{
+	API_SCALL_VOID_PINT2(SetVariableSpriteFont);
+}
+
+// void ()
+RuntimeScriptValue Sc_SetGlyph(const RuntimeScriptValue *params, int32_t param_count)
+{
+	API_SCALL_VOID_PINT6(SetGlyph);
+}
+
+// void ()
+RuntimeScriptValue Sc_SetLineHeightAdjust(const RuntimeScriptValue *params, int32_t param_count)
+{
+	API_SCALL_VOID_PINT4(SetLineHeightAdjust);
+}
+
+// void ()
+RuntimeScriptValue Sc_SetSpacing(const RuntimeScriptValue *params, int32_t param_count)
+{
+	API_SCALL_VOID_PINT2(SetSpacing);
+}
+/*
+void SetSpriteFont(int fontNum, int sprite, int rows, int columns, int charWidth, int charHeight, int charMin, int charMax, bool use32bit)
+void SetVariableSpriteFont(int fontNum, int sprite)
+void SetGlyph(int fontNum, int charNum, int x, int y, int width, int height)
+void SetSpacing(int fontNum, int spacing)
+*/
 bool RegisterPluginStubs(const char* name)
 {
   // Stubs for plugin functions.
@@ -568,6 +628,21 @@ bool RegisterPluginStubs(const char* name)
     ccAddExternalStaticFunction("IosResetAchievements",         Sc_wjuIosResetAchievements);
     return true;
   }
+  else if (strncmp(name, "ags-spritefont-plugin", strlen("ags-spritefont-plugin")) == 0)
+  {
+	  ccAddExternalStaticFunction("SetSpriteFont",          Sc_SetSpriteFont);
+	  ccAddExternalStaticFunction("SetVariableSpriteFont",  Sc_SetVariableSpriteFont);
+	  ccAddExternalStaticFunction("SetGlyph",				Sc_SetGlyph);
+	  ccAddExternalStaticFunction("SetSpacing",				Sc_SetSpacing);
+	  ccAddExternalStaticFunction("SetLineHeightAdjust",	Sc_SetLineHeightAdjust);
 
+	 return true;
+  }
+  else if (strncmp(name, "agsteam", strlen("agsteam")) == 0)
+  {
+	  // TO DO
+
+	  return true;
+  }
   return false;
 }

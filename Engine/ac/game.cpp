@@ -146,6 +146,7 @@ RoomStatus*croom=NULL;
 roomstruct thisroom;
 
 volatile int switching_away_from_game = 0;
+volatile bool switched_away = false;
 volatile char want_exit = 0, abort_engine = 0;
 GameDataVersion loaded_game_file_version = kGameVersion_Undefined;
 int frames_per_second=40;
@@ -347,6 +348,10 @@ String get_save_game_path(int slotNum) {
     return path;
 }
 
+#if defined (MAC_VERSION)
+void AGSMacGetBundleDir(char gamepath[PATH_MAX]);
+#endif
+
 int SetSaveGameDirectoryPath(const char *newFolder, bool allowAbsolute)
 {
 
@@ -360,6 +365,23 @@ int SetSaveGameDirectoryPath(const char *newFolder, bool allowAbsolute)
     platform->ReplaceSpecialPaths(newFolder, newSaveGameDir);
     fix_filename_slashes(newSaveGameDir);
 
+  // evil evil evil kludge for autocloud on the steam build
+  // Makes sure the saves folder is the in "same" relative place on all 3 platforms
+  // OH and it must be lowercase because Steam lacks handling of MixedCase foldernames.
+#if defined (MAC_VERSION)
+    if (strcasecmp(newFolder, "Saves") == 0)
+    {
+      AGSMacGetBundleDir(newSaveGameDir);
+      strcat(newSaveGameDir, "/saves");
+    }
+#elif defined(LINUX_VERSION)
+    if (strcasecmp(newFolder, "Saves") == 0)
+    {
+      strcpy(newSaveGameDir, "saves");
+    }
+#endif
+
+  
 #if defined (WINDOWS_VERSION)
     mkdir(newSaveGameDir);
 #else
@@ -649,12 +671,12 @@ void unload_game_file() {
     guis = NULL;
     free(scrGui);
 
+	for (ee=0;ee<game.numfonts;ee++)
+		wfreefont(ee);
+
     platform->ShutdownPlugins();
     ccRemoveAllSymbols();
     ccUnregisterAllObjects();
-
-    for (ee=0;ee<game.numfonts;ee++)
-        wfreefont(ee);
 
     free_do_once_tokens();
     free(play.gui_draw_order);
@@ -1610,9 +1632,10 @@ int restore_game_header(Stream *in)
     }
     fgetstring_limit (rbuffer, in, 180);
     rbuffer[180] = 0;
-    if (stricmp (rbuffer, usetup.main_data_filename)) {
+	// remove this bs due to OS limitations to allow for shared save games
+    /*if (stricmp (rbuffer, usetup.main_data_filename)) {
         return -5;
-    }
+    }*/
 
     return 0;
 }
@@ -2699,7 +2722,7 @@ int __GetLocationType(int xxx,int yyy, int allowHotspot0) {
 void display_switch_out() {
     // this is only called if in SWITCH_PAUSE mode
     //debug_log("display_switch_out");
-
+	switched_away = true;
     switching_away_from_game++;
 
     platform->DisplaySwitchOut();
@@ -2724,6 +2747,7 @@ void display_switch_out() {
 }
 
 void display_switch_in() {
+	switched_away = false;
     for (int i = 0; i <= MAX_SOUND_CHANNELS; i++) {
         if ((channels[i] != NULL) && (channels[i]->done == 0)) {
             channels[i]->resume();

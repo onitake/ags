@@ -29,7 +29,11 @@
 #include "gui/guibutton.h"
 #include "gfx/gfxfilter.h"
 #include "util/string_utils.h"
+#if defined(IOS_VERSION) || defined(MAC_VERSION)
+#include "device/mousemac.h"
+#else
 #include "device/mousew32.h"
+#endif
 #include "ac/file.h"
 #include "ac/route_finder.h"
 #include "util/misc.h"

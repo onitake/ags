@@ -27,5 +27,7 @@ GameSetup::GameSetup()
     disable_exception_handling = 0;
     enable_side_borders = 1;
     base_width = 320;
-    base_height = 200;
+    base_height = 240;
+	mouse_speed = 1.f;
+	mouse_speed_def = kMouseSpeed_CurrentDisplay;
 }

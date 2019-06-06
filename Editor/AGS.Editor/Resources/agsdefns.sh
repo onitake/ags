@@ -646,8 +646,12 @@ struct Mouse {
   import static void UseDefaultGraphic();
   /// Changes the mouse cursor to use the graphic for a different non-active cursor mode.
   import static void UseModeGraphic(CursorMode);
+  /// Gets/sets whether the user-defined factors are applied to mouse movement
+  import static attribute bool ControlEnabled;
   /// Gets/sets the current mouse cursor mode.
   import static attribute CursorMode Mode;
+  /// Gets/sets the mouse speed
+  import static attribute float Speed;
   /// Gets/sets whether the mouse cursor is visible.
   import static attribute bool Visible;
   /// Gets the current mouse position.
@@ -1018,6 +1022,10 @@ managed struct InventoryItem {
   import int  GetProperty(const string property);
   /// Gets a text custom property for this item.
   import String GetTextProperty(const string property);
+  /// Sets a text custom property for this item.
+  import String SetTextProperty(const string property, const string value);
+  /// Sets an integer custom property for this item.
+  import int  SetProperty(const string property, const int value);
   /// Checks whether an event handler has been registered for clicking on this item in the specified cursor mode.
   import int  IsInteractionAvailable(CursorMode);
   /// Runs the registered event handler for this item.
@@ -1543,6 +1551,10 @@ managed struct Hotspot {
   import int  GetProperty(const string property);
   /// Gets a text Custom Property for this hotspot.
   import String GetTextProperty(const string property);
+  /// Sets a text custom property for this item.
+  import String SetTextProperty(const string property, const string value);
+  /// Sets an integer custom property for this item.
+  import int  SetProperty(const string property, const int value);
   /// Runs the specified event handler for this hotspot.
   import void RunInteraction(CursorMode);
   /// Gets/sets whether this hotspot is enabled.
@@ -1811,6 +1823,10 @@ managed struct Object {
   import function GetProperty(const string property);
   /// Gets a text Custom Property for this object.
   import String   GetTextProperty(const string property);
+  /// Sets a text custom property for this item.
+  import String SetTextProperty(const string property, const string value);
+  /// Sets an integer custom property for this item.
+  import int  SetProperty(const string property, const int value);
   /// Checks whether this object is colliding with another.
   import bool IsCollidingWithObject(Object*);
   /// Merges the object's image into the room background, and disables the object.
@@ -1903,6 +1919,10 @@ managed struct Character {
 #endif
   /// Gets a text custom property for this character.
   import String   GetTextProperty(const string property);
+  /// Sets a text custom property for this item.
+  import String SetTextProperty(const string property, const string value);
+  /// Sets an integer custom property for this item.
+  import int  SetProperty(const string property, const int value);
   /// Checks whether the character currently has the specified inventory item.
   import bool     HasInventory(InventoryItem *item);
   /// Checks whether this character is in collision with the other character.

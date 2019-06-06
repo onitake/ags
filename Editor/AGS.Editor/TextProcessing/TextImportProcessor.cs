@@ -18,7 +18,7 @@ namespace AGS.Editor
 
         protected override int ParseFunctionCallAndFindCharacterID(string scriptCodeExtract)
         {
-            string[] doNotTranslateCalls = new string[] { "Property(", "Property (", "PropertyText(", "PropertyText (" };
+            string[] doNotTranslateCalls = new string[] { "Display(", "String.Format(", "NoTranslate(", "DoOnce(", "Property(", "Property (", "PropertyText(", "PropertyText (" };
             foreach (string doNotTranslateFunc in doNotTranslateCalls)
             {
                 if (scriptCodeExtract.IndexOf(doNotTranslateFunc) > 0)

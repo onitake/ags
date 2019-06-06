@@ -1355,14 +1355,53 @@ namespace AGS.Editor.Components
                     message.Text = processor.ProcessText(message.Text, GameTextType.Message, charId);
                 }
 
+                CustomProperty tmp;
                 foreach (RoomHotspot hotspot in room.Hotspots)
                 {
                     hotspot.Description = processor.ProcessText(hotspot.Description, GameTextType.ItemDescription);
+   
+                    if (hotspot.Properties.PropertyValues.TryGetValue("DescName", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("Verb", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("StringLookAt", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("StringTalkTo", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("StringExamine", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("StringThink", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("StringUTORP", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("VerbInv", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (hotspot.Properties.PropertyValues.TryGetValue("PrepositionInv", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
                 }
 
                 foreach (RoomObject obj in room.Objects)
                 {
                     obj.Description = processor.ProcessText(obj.Description, GameTextType.ItemDescription);
+
+                    if (obj.Properties.PropertyValues.TryGetValue("DescName", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("Verb", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("StringLookAt", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("StringTalkTo", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("StringExamine", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("StringThink", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("StringUTORP", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("VerbInv", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
+                    if (obj.Properties.PropertyValues.TryGetValue("PrepositionInv", out tmp))
+                        processor.ProcessText(tmp.Value, GameTextType.ItemDescription);
                 }
 
                 if (processor.MakesChanges)

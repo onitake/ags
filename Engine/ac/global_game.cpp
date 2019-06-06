@@ -597,6 +597,13 @@ void GetLocationName(int xxx,int yyy,char*tempo) {
 
 int IsKeyPressed (int keycode) {
 #ifdef ALLEGRO_KEYBOARD_HANDLER
+
+	if(keycode == 27)
+	{
+		if (rec_iskeypressed(KEY_ESC))
+			return 1;
+	}
+
     if (keyboard_needs_poll())
         poll_keyboard();
     if (keycode >= 300) {
@@ -671,7 +678,11 @@ int IsKeyPressed (int keycode) {
     }
     else if ((keycode >= '0') && (keycode <= '9'))
         keycode -= ('0' - KEY_0);
+#if defined(MAC_VERSION)
+    else if (keycode == 8 || keycode == 127)
+#else
     else if (keycode == 8)
+#endif
         keycode = KEY_BACKSPACE;
     else if (keycode == 9)
         keycode = KEY_TAB;
