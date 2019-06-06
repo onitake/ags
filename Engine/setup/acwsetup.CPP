@@ -53,7 +53,7 @@ int curmaxcache = 1024 * 20, curusespeech = 1;
 int wwidth, wheight;
 GFXFilter **filterList = NULL;
 const int specialFilterListIndex = 1;
-const char *specialFilterName = "Max nearest-neighbour filter";
+const char *specialFilterName = "Automatic";
 const char *specialFilterID = "max";
 
 int get_filter_real_index(int list_index)
@@ -124,12 +124,18 @@ void update_resolution_texts(HWND hDlg) {
 
   thisx = resx;
   thisy = resy;
+  bool bAutoDetect = selectedFilter == specialFilterListIndex;
   selectedFilter = get_filter_real_index(selectedFilter);
   if (selectedFilter >= 0)
   {
     filterList[selectedFilter]->GetRealResolution(&thisx, &thisy);
   }
-  sprintf(buffer, "Resolution: %d""x%d", thisx, thisy);
+  
+  if(bAutoDetect)
+	sprintf(buffer, "Resolution: %s", "Auto-Detected");
+  else
+	sprintf(buffer, "Resolution: %d""x%d", thisx, thisy);
+
   SendDlgItemMessage (hDlg, IDC_RESOLUTION, WM_SETTEXT, 0, (LPARAM)buffer);
 }
 

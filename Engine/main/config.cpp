@@ -126,6 +126,17 @@ char *INIreaditem(const char *sectn, const char *entry) {
     return NULL;
 }
 
+float INIreadfloat(const String &sectn, const String &item, float def_value)
+{
+	char *tempstr = INIreaditem (sectn, item);
+	if (tempstr == NULL)
+		return -1;
+
+	int toret = atof(tempstr);
+	free (tempstr);
+	return toret;
+}
+
 int INIreadint (const char *sectn, const char *item, int errornosect = 1) {
     char *tempstr = INIreaditem (sectn, item);
     if (tempstr == NULL)
@@ -304,6 +315,18 @@ void read_config_file(char *argv0) {
         }
         else
             play.playback = 0;
+
+		usetup.mouse_speed = INIreadfloat("mouse", "speed", 1.f);
+		if (usetup.mouse_speed <= 0.f)
+			usetup.mouse_speed = 1.f;
+
+		const char *mouse_speed_options[kNumMouseSpeedDefs] = { "absolute", "current_display" };
+		String mouse_str = INIreadstring("mouse", "speed_def");
+		for (int i = 0; i < kNumMouseSpeedDefs; ++i)
+		{
+			 if (mouse_str.CompareNoCase(mouse_speed_options[i]) == 0)
+				usetup.mouse_speed_def = (MouseSpeedDef)i;
+		}
 
         usetup.override_multitasking = INIreadint("override", "multitasking");
         String override_os = INIreadstring("override", "os");

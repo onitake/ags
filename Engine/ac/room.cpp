@@ -61,6 +61,12 @@
 #include "core/assetmanager.h"
 #include "ac/dynobj/all_dynamicclasses.h"
 #include "gfx/bitmap.h"
+#include "main/graphics_mode.h"
+#if defined(IOS_VERSION) || defined(MAC_VERSION)
+#include "device/mousemac.h"
+#else
+#include "device/mousew32.h"
+#endif
 
 using AGS::Common::Bitmap;
 using AGS::Common::Stream;
@@ -132,6 +138,32 @@ RGB_MAP rgb_table;  // for 256-col antialiasing
 int new_room_flags=0;
 int gs_to_newroom=-1;
 
+void copy_properties_to_current_room_state()
+{
+	for(int i = 0; i < thisroom.roomProps.numProps; i++)
+	{
+		if(croom->roomProps.findProperty(thisroom.roomProps.propName[i]) < 0)
+			croom->roomProps.addProperty(thisroom.roomProps.propName[i], thisroom.roomProps.propVal[i]);
+	}
+
+	for (int i = 0; i < MAX_HOTSPOTS; ++i)
+	{
+		for(int ii = 0; ii < thisroom.hsProps[i].numProps; ii++)
+		{
+			if(croom->hsProps[i].findProperty(thisroom.hsProps[i].propName[ii]) < 0)
+				croom->hsProps[i].addProperty(thisroom.hsProps[i].propName[ii], thisroom.hsProps[i].propVal[ii]);
+		}
+	}
+	for (int i = 0; i < MAX_INIT_SPR; ++i)
+	{
+		for(int ii = 0; ii < thisroom.objProps[i].numProps; ii++)
+		{
+			if(croom->objProps[i].findProperty(thisroom.objProps[i].propName[ii]) < 0)
+				croom->objProps[i].addProperty(thisroom.objProps[i].propName[ii], thisroom.objProps[i].propVal[ii]);
+		}
+	}
+}
+
 ScriptDrawingSurface* Room_GetDrawingSurfaceForBackground(int backgroundNumber)
 {
     if (displayed_room < 0)
@@ -189,8 +221,24 @@ int Room_GetMusicOnLoad() {
     return thisroom.options[ST_TUNE];
 }
 
-const char* Room_GetTextProperty(const char *property) {
-    return get_text_property_dynamic_string(&thisroom.roomProps, property);
+int Room_GetProperty(const char *property)
+{
+	return get_int_property(&croom->roomProps, property);
+}
+
+const char* Room_GetTextProperty(const char *property)
+{
+	return get_text_property_dynamic_string(&croom->roomProps, property);
+}
+
+void Room_SetProperty(const char *property, int value)
+{
+	set_int_property(&croom->roomProps, property, value);
+}
+
+void Room_SetTextProperty(const char *property, const char *value)
+{
+	set_text_property(&croom->roomProps, property, value);
 }
 
 const char* Room_GetMessages(int index) {
@@ -526,6 +574,9 @@ void load_new_room(int newnum, CharacterInfo*forchar) {
 		scrnhit = BitmapHelper::GetScreenBitmap()->GetHeight();
         vesa_yres = scrnhit;
 
+		game_frame_x_offset = (final_scrn_wid - scrnwid) / 2;
+		game_frame_y_offset = (final_scrn_hit - scrnhit) / 2;
+
         filter->SetMouseArea(0,0, scrnwid-1, vesa_yres-1);
 
         if (virtual_screen->GetHeight() != scrnhit) {
@@ -685,6 +736,8 @@ void load_new_room(int newnum, CharacterInfo*forchar) {
         for (cc=0;cc<MAX_REGIONS;cc++)
             croom->intrRegion[cc] = thisroom.intrRegion[cc][0];
     }
+
+	copy_properties_to_current_room_state();
 
     objs=&croom->obj[0];
 

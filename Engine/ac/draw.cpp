@@ -56,6 +56,7 @@
 #include "gfx/ddb.h"
 #include "gfx/gfx_util.h"
 #include "gfx/graphicsdriver.h"
+#include "debug/out.h"
 
 using AGS::Common::Bitmap;
 namespace BitmapHelper = AGS::Common::BitmapHelper;
@@ -689,7 +690,7 @@ void mark_current_background_dirty()
 int get_screen_y_adjustment(Bitmap *checkFor) {
 
 	if ((BitmapHelper::GetScreenBitmap() == _sub_screen) && (checkFor->GetHeight() < final_scrn_hit))
-        return get_fixed_pixel_size(20);
+        return (final_scrn_hit - checkFor->GetHeight()) / 2;
 
     return 0;
 }
@@ -709,15 +710,15 @@ void render_black_borders(int atx, int aty)
         if (aty > 0)
         {
             // letterbox borders
-            blankImage->SetStretch(scrnwid, aty);
-            gfxDriver->DrawSprite(0, -aty, blankImage);
+            blankImage->SetStretch(final_scrn_wid, aty);
+            gfxDriver->DrawSprite(-final_scrn_wid/2, -aty, blankImage);
             gfxDriver->DrawSprite(0, scrnhit, blankImage);
         }
         if (atx > 0)
         {
             // sidebar borders for widescreen
-            blankSidebarImage->SetStretch(atx, scrnhit);
-            gfxDriver->DrawSprite(-atx, 0, blankSidebarImage);
+            blankSidebarImage->SetStretch(atx+1, scrnhit);
+            gfxDriver->DrawSprite(-(atx+1), 0, blankSidebarImage); // +1 is to take into account rounding errors
             gfxDriver->DrawSprite(scrnwid, 0, blankSidebarImage);
         }
     }

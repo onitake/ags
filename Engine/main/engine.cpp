@@ -142,7 +142,12 @@ int engine_init_allegro()
 #endif
         return EXIT_NORMAL;
     }
-
+#ifdef WINDOWS_VERSION
+	// Setup allegro using constructed config string
+	String al_config_data = "[mouse]\n";
+	al_config_data.Append(String::FromFormat("mouse_accel_factor = %d\n", 0));
+	set_config_data(al_config_data, al_config_data.GetLength());
+#endif
     return RETURN_CONTINUE;
 }
 
@@ -214,7 +219,7 @@ void engine_force_window()
 void init_game_file_name_from_cmdline()
 {
     game_file_name.Empty();
-#if defined(PSP_VERSION) || defined(ANDROID_VERSION) || defined(IOS_VERSION)
+#if defined(PSP_VERSION) || defined(ANDROID_VERSION) || defined(IOS_VERSION) || defined(MAC_VERSION) || defined(LINUX_VERSION)
     game_file_name = psp_game_file_name;
 #else
     game_file_name = GetPathFromCmdArg(datafile_argv);
@@ -1112,7 +1117,7 @@ void init_game_settings() {
     play.speech_volume = 255;
     play.normal_font = 0;
     play.speech_font = 1;
-    play.speech_text_shadow = 16;
+    play.speech_text_shadow = 6371;
     play.screen_tint = -1;
     play.bad_parsed_word[0] = 0;
     play.swap_portrait_side = 0;

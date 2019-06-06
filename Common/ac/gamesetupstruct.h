@@ -124,6 +124,8 @@ struct GameSetupStruct: public GameSetupStructBase {
     void ReadFromSaveGame_v321(Common::Stream *in, char* gswas, ccScript* compsc, CharacterInfo* chwas,
                                    WordsDictionary *olddict, char** mesbk);
     void WriteForSaveGame_v321(Common::Stream *out);
+
+	bool IsHiRes(){return false;}
 };
 
 //=============================================================================

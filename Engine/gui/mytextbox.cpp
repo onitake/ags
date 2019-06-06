@@ -66,7 +66,11 @@ int MyTextBox::processmessage(int mcode, int wParam, long lParam)
     } else if (mcode == CTB_GETTEXT)
         strcpy((char *)lParam, text);
     else if (mcode == CTB_KEYPRESS) {
+#if defined(MAC_VERSION)
+        if (wParam == 8 || wParam == 127) {
+#else
         if (wParam == 8) {
+#endif
             if (text[0] != 0)
                 text[strlen(text) - 1] = 0;
 

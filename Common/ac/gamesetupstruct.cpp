@@ -120,6 +120,9 @@ void GameSetupStruct::read_savegame_info(Common::Stream *in, GAME_STRUCT_READ_DA
         in->Read(&guid[0], MAX_GUID_LENGTH);
         in->Read(&saveGameFileExtension[0], MAX_SG_EXT_LENGTH);
         in->Read(&saveGameFolderName[0], MAX_SG_FOLDER_LEN);
+#ifdef MAC_STORE
+        sprintf(saveGameFolderName, "Kathy Rain");
+#endif
 
         if (saveGameFileExtension[0] != 0)
             sprintf(read_data.saveGameSuffix, ".%s", saveGameFileExtension);
@@ -500,6 +503,11 @@ void GameSetupStruct::ReadFromSaveGame_v321(Stream *in, char* gswas, ccScript* c
     options[OPT_LIPSYNCTEXT] = in->ReadByte();
 
     ReadCharacters_Aligned(in);
+
+	for (bb = 0; bb < numcharacters; bb++)
+		charProps[bb].UnSerialize (in);
+	for (bb = 0; bb < numinvitems; bb++)
+		invProps[bb].UnSerialize (in);
 }
 
 void GameSetupStruct::WriteForSaveGame_v321(Stream *out)
@@ -520,6 +528,12 @@ void GameSetupStruct::WriteForSaveGame_v321(Stream *out)
     out->WriteInt8 (options[OPT_LIPSYNCTEXT]);
 
     WriteCharacters_Aligned(out);
+
+	int bb;
+	for (bb = 0; bb < numcharacters; bb++)
+		charProps[bb].Serialize (out);
+	for (bb = 0; bb < numinvitems; bb++)
+		invProps[bb].Serialize (out);
 }
 
 //=============================================================================

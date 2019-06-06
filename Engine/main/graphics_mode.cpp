@@ -67,7 +67,7 @@ extern Bitmap *_old_screen;
 extern Bitmap *_sub_screen;
 extern int _places_r, _places_g, _places_b;
 
-const int MaxSidebordersWidth = 110;
+const int MaxSidebordersWidth = 1000;
 
 int initasx,initasy;
 int firstDepth, secondDepth;
@@ -182,7 +182,7 @@ void engine_init_screen_settings()
 #endif
 
     usetup.base_width = 320;
-    usetup.base_height = 200;
+    usetup.base_height = 240;
 
     if (game.default_resolution >= 5)
     {
@@ -216,7 +216,7 @@ void engine_init_screen_settings()
         (game.default_resolution == 1))
     {
         scrnwid = 320;
-        scrnhit = 200;
+        scrnhit = 240;
         wtext_multiply = 1;
     }
     else
@@ -469,9 +469,12 @@ int get_maximal_supported_scaling(const Size &game_size)
         }
     }
 
-    // max scaling for normal mode
-    selected_scaling = Math::Max(selected_scaling,
-        find_max_supported_uniform_multiplier(game_size, firstDepth, 0));
+	if(selected_scaling == 0 || usetup.enable_side_borders == 0)
+	{
+		// max scaling for normal mode
+		selected_scaling = Math::Max(selected_scaling,
+			find_max_supported_uniform_multiplier(game_size, firstDepth, 0));
+	}
     return selected_scaling;
 }
 
@@ -511,7 +514,9 @@ String get_maximal_supported_scaling_filter()
         int desktop_height;
         if (get_desktop_resolution(&desktop_width, &desktop_height) == 0)
         {
-            desktop_height -= 32; // give some space for window borders
+			if(usetup.windowed != 0)
+				desktop_height -= 32; // give some space for window borders
+
             // TODO: a platform-specific way to do this?
             int xratio = desktop_width / game_width;
             int yratio = desktop_height / game_height;
@@ -531,6 +536,7 @@ int engine_init_gfx_filters()
     Out::FPrint("Init gfx filters");
 
     String gfxfilter;
+	bool bAutoDetect = false;
 
     if (force_gfxfilter[0]) {
         gfxfilter = force_gfxfilter;
@@ -541,14 +547,30 @@ int engine_init_gfx_filters()
 #if defined (WINDOWS_VERSION) || defined (LINUX_VERSION)
     else {
         gfxfilter = get_maximal_supported_scaling_filter();
+		bAutoDetect = true;
     }
 #endif
+#if defined (MAC_VERSION)
+	else {
+		gfxfilter = "None";
+		bAutoDetect = true;
+	}
+#endif
 
-    if (initialize_graphics_filter(gfxfilter, initasx, initasy, firstDepth))
-    {
-        return EXIT_NORMAL;
-    }
-    return RETURN_CONTINUE;
+	// auto detection failed? okay then, time to brute force this shit.
+	if(bAutoDetect && gfxfilter == "None")
+	{
+		bool bFailed = false;
+		// 4x is a good place to start
+    initialize_graphics_filter("StdScale4", initasx, initasy, firstDepth);
+
+    return 2;
+	}
+	else if (initialize_graphics_filter(gfxfilter, initasx, initasy, firstDepth))
+  {
+      return EXIT_NORMAL;
+  }
+  return RETURN_CONTINUE;
 }
 
 void create_gfx_driver(const String &gfx_driver_id)
@@ -561,8 +583,7 @@ void create_gfx_driver(const String &gfx_driver_id)
     gfxDriver->SetTintMethod(TintReColourise);
 }
 
-int init_gfx_mode(int wid,int hit,int cdep) {
-
+int init_gfx_mode(int wid,int hit,int cdep, bool ignorefilter) {
     // a mode has already been initialized, so abort
     if (working_gfx_mode_status == 0) return 0;
 
@@ -576,9 +597,22 @@ int init_gfx_mode(int wid,int hit,int cdep) {
     if (usetup.refresh >= 50)
         request_refresh_rate(usetup.refresh);
 
-    final_scrn_wid = wid;
-    final_scrn_hit = hit;
+	if(ignorefilter)
+	{
+		int tmp = 1, tmp2 = 1;
+		gfxDriver->GetGraphicsFilter()->GetRealResolution(&tmp, &tmp2);
+		final_scrn_wid = wid / tmp;
+		final_scrn_hit = hit / tmp;
+	}
+	else
+	{
+		final_scrn_wid = wid;
+		final_scrn_hit = hit;
+	}
+
     final_col_dep = cdep;
+	game_frame_x_offset = (final_scrn_wid - scrnwid) / 2;
+	game_frame_y_offset = (final_scrn_hit - scrnhit) / 2;
 
     if (game.color_depth == 1) {
         final_col_dep = 8;
@@ -587,7 +621,7 @@ int init_gfx_mode(int wid,int hit,int cdep) {
         set_color_depth(cdep);
     }
 
-    working_gfx_mode_status = (gfxDriver->Init(wid, hit, final_col_dep, usetup.windowed > 0, &timerloop) ? 0 : -1);
+    working_gfx_mode_status = (gfxDriver->Init(wid, hit, final_col_dep, usetup.windowed > 0, &timerloop, ignorefilter) ? 0 : -1);
 
     if (working_gfx_mode_status == 0) 
         Out::FPrint("Succeeded. Using gfx mode %d x %d (%d-bit)", wid, hit, final_col_dep);
@@ -618,6 +652,7 @@ int try_widescreen_bordered_graphics_mode_if_appropriate(int initasx, int initas
 
     int failed = 1;
     int desktopWidth, desktopHeight;
+    GFXFilter* pFilter = gfxDriver->GetGraphicsFilter();
     if (get_desktop_resolution(&desktopWidth, &desktopHeight) == 0)
     {
         const int game_width  = initasx;
@@ -627,7 +662,7 @@ int try_widescreen_bordered_graphics_mode_if_appropriate(int initasx, int initas
 
         Out::FPrint("Widescreen side borders: game resolution: %d x %d; desktop resolution: %d x %d", game_width, game_height, desktopWidth, desktopHeight);
 
-        if (desktop_ratio < game_ratio)
+        if (desktop_ratio != game_ratio)
         {
             int tryWidth = (game_height << 10) / desktop_ratio;
             int supportedRes = find_supported_resolution_width(Size(tryWidth, game_height), firstDepth, MaxSidebordersWidth);
@@ -638,9 +673,28 @@ int try_widescreen_bordered_graphics_mode_if_appropriate(int initasx, int initas
             }
             else
             {
+              int x = 1;
+              int y = 1;
+              pFilter->GetRealResolution(&x,&y);
+
+              tryWidth *= x;
                 Out::FPrint("Widescreen side borders: gfx card does not support suitable resolution. Will attempt %d x %d anyway", tryWidth, game_height);
-            }
-            failed = init_gfx_mode(tryWidth, game_height, firstDepth);
+			}
+			if(pFilter != NULL)
+			{
+				int x = 1;
+				int y = 1;
+				pFilter->GetRealResolution(&x,&y);
+				
+				if((game_width * x) > desktopWidth || (game_height * y) > desktopHeight)
+					failed = true;
+				else
+				{
+					failed = init_gfx_mode(tryWidth, game_height * x, firstDepth, true);
+				}
+			}
+			else
+				failed = true;
         }
         else
         {
@@ -660,17 +714,17 @@ int switch_to_graphics_mode(int initasx, int initasy, int scrnwid, int scrnhit, 
     int initasyLetterbox = (initasy * 12) / 10;
 
     // first of all, try 16-bit normal then letterboxed
-    if (game.options[OPT_LETTERBOX] == 0) 
+    if (usetup.windowed || usetup.enable_side_borders) 
     {
         failed = try_widescreen_bordered_graphics_mode_if_appropriate(initasx, initasy, firstDepth);
         failed = init_gfx_mode(initasx,initasy, firstDepth);
     }
-    failed = try_widescreen_bordered_graphics_mode_if_appropriate(initasx, initasyLetterbox, firstDepth);
-    failed = init_gfx_mode(initasx, initasyLetterbox, firstDepth);
+    failed = try_widescreen_bordered_graphics_mode_if_appropriate(initasx, initasy, firstDepth);
+    failed = init_gfx_mode(initasx, initasy, firstDepth);
 
     if (secondDepth != firstDepth) {
         // now, try 15-bit normal then letterboxed
-        if (game.options[OPT_LETTERBOX] == 0) 
+        if (usetup.windowed || usetup.enable_side_borders) 
         {
             failed = try_widescreen_bordered_graphics_mode_if_appropriate(initasx, initasy, secondDepth);
             failed = init_gfx_mode(initasx,initasy, secondDepth);
@@ -692,7 +746,7 @@ int switch_to_graphics_mode(int initasx, int initasy, int scrnwid, int scrnhit, 
     return 0;
 }
 
-int engine_init_graphics_mode()
+int engine_init_graphics_mode(bool autofilter)
 {
     Out::FPrint("Switching to graphics mode");
 
@@ -711,14 +765,28 @@ int engine_init_graphics_mode()
             {
                 return EXIT_NORMAL;
             }
-
-            if (switch_to_graphics_mode(initasx, initasy, scrnwid, scrnhit, firstDepth, secondDepth))
-            {
-                return EXIT_NORMAL;
-            }
             return RETURN_CONTINUE;
         }
-        return EXIT_NORMAL;
+      
+        if(autofilter)
+        {
+          initialize_graphics_filter("StdScale3", initasx, initasy, firstDepth);
+          
+          if(switch_to_graphics_mode(initasx, initasy, scrnwid, scrnhit, firstDepth, secondDepth))
+          {
+            initialize_graphics_filter("StdScale5", initasx, initasy, firstDepth);
+            
+            if(switch_to_graphics_mode(initasx, initasy, scrnwid, scrnhit, firstDepth, secondDepth))
+            {
+              initialize_graphics_filter("StdScale2", initasx, initasy, firstDepth);
+              
+              if(switch_to_graphics_mode(initasx, initasy, scrnwid, scrnhit, firstDepth, secondDepth))
+                return EXIT_NORMAL;
+            }
+          }
+        }
+        else
+          return EXIT_NORMAL;
     }
     return RETURN_CONTINUE;
 }
@@ -795,7 +863,7 @@ void engine_prepare_screen()
         // when we're using 32-bit colour, it converts hi-color images
         // the wrong way round - so fix that
 
-#if defined(IOS_VERSION) || defined(ANDROID_VERSION) || defined(PSP_VERSION)
+#if defined(IOS_VERSION) || defined(ANDROID_VERSION) || defined(PSP_VERSION) || defined(MAC_VERSION)
         _rgb_b_shift_16 = 0;
         _rgb_g_shift_16 = 5;
         _rgb_r_shift_16 = 11;
@@ -865,20 +933,48 @@ void engine_set_color_conversions()
 
 int create_gfx_driver_and_init_mode(const String &gfx_driver_id)
 {
+	Size init_desktop;
+	get_desktop_resolution(&init_desktop.Width, &init_desktop.Height);
     create_gfx_driver(gfx_driver_id);
     engine_init_screen_settings();
 
-    int res = engine_init_gfx_filters();
-    if (res != RETURN_CONTINUE)
-    {
-        return res;
-    }
+  int res = engine_init_gfx_filters();
+  bool bAutoFilter = res == 2;
+  if (!bAutoFilter && res != RETURN_CONTINUE)
+  {
+    return res;
+  }
 
-    res = engine_init_graphics_mode();
-    if (res != RETURN_CONTINUE)
-    {
-        return res;
-    }
+  res = engine_init_graphics_mode(bAutoFilter);
+  if (res != RETURN_CONTINUE)
+  {
+      return res;
+  }
+
+#ifndef MAC_VERSION
+#ifndef IOS_VERSION
+	// Assign mouse control parameters
+	const bool control_sens = !usetup.windowed;
+	if (control_sens)
+	{
+		Mouse::EnableControl(!usetup.windowed);
+		if (usetup.mouse_speed_def == kMouseSpeed_CurrentDisplay)
+		{
+			Size cur_desktop;
+			get_desktop_resolution(&cur_desktop.Width, &cur_desktop.Height);
+
+			float width_modifier = (float)cur_desktop.Width / (float)init_desktop.Width;
+			float height_modifier = (float)cur_desktop.Height / (float)init_desktop.Height;
+			float max = (width_modifier > height_modifier) ? width_modifier : height_modifier;
+
+			Mouse::SetSpeedUnit(max);
+		}
+		Mouse::SetSpeed(usetup.mouse_speed);
+	}
+	Out::FPrint("Mouse control: %s, base: %f, speed: %f", Mouse::IsControlEnabled() ? "on" : "off",
+	Mouse::GetSpeedUnit(), Mouse::GetSpeed());
+#endif
+#endif
     return RETURN_CONTINUE;
 }
 

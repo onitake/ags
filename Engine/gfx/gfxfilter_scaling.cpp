@@ -15,7 +15,11 @@
 #include <stdio.h>
 #include "gfx/gfxfilter_scaling.h"
 #include "util/wgt2allg.h"
+#if defined(IOS_VERSION) || defined(MAC_VERSION)
+#include "device/mousemac.h"
+#else
 #include "device/mousew32.h"
+#endif
 #include "gfx/gfxfilterhelpers.h"
 
 // Standard scaling filter

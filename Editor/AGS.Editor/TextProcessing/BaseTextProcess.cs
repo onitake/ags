@@ -11,7 +11,12 @@ namespace AGS.Editor
 			Dictionary<string, FunctionCallType> speechableFunctionCalls = new Dictionary<string, FunctionCallType>();
 			speechableFunctionCalls.Add("DisplaySpeech", FunctionCallType.GlobalSpeech);
 			speechableFunctionCalls.Add("DisplayThought", FunctionCallType.GlobalSpeech);
+            //speechableFunctionCalls.Add("SayText", FunctionCallType.GlobalSpeech);
+            speechableFunctionCalls.Add(".AddTapeMessage", FunctionCallType.ObjectBasedSpeech);
+            speechableFunctionCalls.Add(".AddToVOScript", FunctionCallType.ObjectBasedSpeech);
+            speechableFunctionCalls.Add(".GSay", FunctionCallType.ObjectBasedSpeech);
 			speechableFunctionCalls.Add(".Say", FunctionCallType.ObjectBasedSpeech);
+            speechableFunctionCalls.Add(".SayBackground", FunctionCallType.ObjectBasedSpeech);
 			speechableFunctionCalls.Add(".Think", FunctionCallType.ObjectBasedSpeech);
 			if (includeNarrator)
 			{

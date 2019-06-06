@@ -458,7 +458,13 @@ void check_controls() {
             // it should do if a displayable character (32-255) is
             // pressed, but exclude control characters (<32) and
             // extended keys (eg. up/down arrow; 256+)
-            if ( ((kgn >= 32) && (kgn != '[') && (kgn < 256)) || (kgn == 13) || (kgn == 8) ) {
+            
+#if defined(MAC_VERSION)
+			if ( ((kgn >= 32) && (kgn != '[') && (kgn < 256)) || (kgn == 13) || (kgn == 8) || (kgn == 127) ) 
+#else
+			if ( ((kgn >= 32) && (kgn != '[') && (kgn < 256)) || (kgn == 13) || (kgn == 8) ) 
+#endif
+			{
                 int uu,ww;
                 for (uu=0;uu<game.numgui;uu++) {
                     if (guis[uu].on < 1) continue;
