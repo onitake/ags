@@ -8,10 +8,13 @@ public:
 	VariableWidthFont(void);
 	~VariableWidthFont(void);
 	void SetGlyph(int character, int x, int y, int width, int height);
+	void SetLineHeightAdjust(int LineHeight, int SpacingHeight, int SpacingOverride);
 	int SpriteNumber;
 	int FontReplaced;
 	int Spacing;
-	int LineHeightAdjust1, LineHeightAdjust2, LineHeightAdjust3;
+	int LineHeightAdjust;
+	int LineSpacingAdjust;
+	int LineSpacingOverride;
 	std::map<char, CharacterEntry> characters;
 
 private:
